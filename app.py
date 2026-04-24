@@ -28,7 +28,7 @@ st.markdown(
     <style>
     /* ========= Global ========= */
     .stApp {
-        background: #FEFBF7;
+        background: #FFFDFB;
     }
 
     .block-container {
@@ -48,8 +48,8 @@ st.markdown(
 
     /* ========= Sidebar ========= */
     section[data-testid="stSidebar"] {
-        background: #FAF6F1;
-        border-right: 1px solid #EEE5DC;
+        background: #F8FAFC;
+        border-right: 1px solid #E5E7EB;
     }
 
     section[data-testid="stSidebar"] .block-container {
@@ -75,7 +75,7 @@ st.markdown(
     .filter-group-title {
         font-size: 0.78rem !important;
         font-weight: 850;
-        color: #3f3328;
+        color: #334155;
         text-transform: uppercase;
         letter-spacing: 0.08em;
         margin-bottom: 0.2rem;
@@ -83,40 +83,41 @@ st.markdown(
 
     .filter-group-note {
         font-size: 0.82rem !important;
-        color: #9ca3af;
+        color: #94A3B8;
         margin-bottom: 0.65rem;
     }
 
     section[data-testid="stSidebar"] div[data-testid="stVerticalBlockBorderWrapper"] {
         background: #FFFFFF !important;
-        border: 1px solid #EEE5DC !important;
+        border: 1px solid #E2E8F0 !important;
         border-radius: 14px !important;
-        box-shadow: 0 1px 3px rgba(80, 50, 20, 0.025);
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
     }
 
     section[data-testid="stSidebar"] [data-baseweb="select"] > div {
-        background: #ffffff !important;
-        border: 1px solid #DDD6CC !important;
+        background: #FFFFFF !important;
+        border: 1px solid #CBD5E1 !important;
         border-radius: 10px !important;
         min-height: 44px !important;
         box-shadow: none !important;
     }
 
+    /* Selected tags in sidebar -> light gray, not red */
     section[data-testid="stSidebar"] span[data-baseweb="tag"] {
-        background: #F1EEE9 !important;
-        border: 1px solid #DDD6CC !important;
+        background: #F1F5F9 !important;
+        border: 1px solid #CBD5E1 !important;
         border-radius: 8px !important;
-        color: #4B5563 !important;
+        color: #334155 !important;
         font-weight: 650 !important;
     }
 
     section[data-testid="stSidebar"] span[data-baseweb="tag"] span {
-        color: #4B5563 !important;
+        color: #334155 !important;
     }
 
     section[data-testid="stSidebar"] span[data-baseweb="tag"] svg {
-        fill: #64748b !important;
-        color: #64748b !important;
+        fill: #64748B !important;
+        color: #64748B !important;
     }
 
     section[data-testid="stSidebar"] input {
@@ -125,10 +126,10 @@ st.markdown(
 
     /* ========= Section Containers ========= */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 1px solid #EEE5DC !important;
+        border: 1px solid #E5E7EB !important;
         border-radius: 18px !important;
         background: #FFFFFF !important;
-        box-shadow: 0 2px 8px rgba(80, 50, 20, 0.025);
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
     }
 
     .section-kicker {
@@ -149,7 +150,7 @@ st.markdown(
         font-size: 2.45rem !important;
         font-weight: 900;
         line-height: 1.1;
-        color: #1f2937;
+        color: #111827;
         margin-bottom: 0.45rem;
     }
 
@@ -162,20 +163,20 @@ st.markdown(
 
     .disclaimer {
         font-size: 0.92rem !important;
-        color: #6b7280;
+        color: #6B7280;
         margin-bottom: 0.4rem;
     }
 
     .section-title {
         font-size: 1.75rem !important;
         font-weight: 850;
-        color: #1f2937;
+        color: #111827;
         margin-bottom: 0.35rem;
     }
 
     .section-subtext {
         font-size: 0.96rem !important;
-        color: #6b7280;
+        color: #6B7280;
         margin-bottom: 1rem;
         line-height: 1.5;
     }
@@ -183,13 +184,13 @@ st.markdown(
     .subsection-title {
         font-size: 1.22rem !important;
         font-weight: 850;
-        color: #1f2937;
+        color: #111827;
         margin-bottom: 0.25rem;
     }
 
     .subsection-note {
         font-size: 0.92rem !important;
-        color: #6b7280;
+        color: #6B7280;
         margin-bottom: 0.9rem;
         line-height: 1.45;
     }
@@ -197,12 +198,12 @@ st.markdown(
     /* ========= Metric Cards ========= */
     .metric-card {
         background: #FFFFFF;
-        border: 1px solid #EEE5DC;
+        border: 1px solid #E5E7EB;
         border-top: 4px solid #F1C9A5;
         border-radius: 16px;
         padding: 18px 18px 16px 18px;
         min-height: 138px;
-        box-shadow: 0 1px 3px rgba(80, 50, 20, 0.025);
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
     }
 
     .metric-label {
@@ -210,45 +211,45 @@ st.markdown(
         font-weight: 850;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #7c6a58;
+        color: #64748B;
         margin-bottom: 0.9rem;
     }
 
     .metric-value {
         font-size: 2.25rem !important;
         font-weight: 900;
-        color: #1f2937;
+        color: #111827;
         line-height: 1.1;
         margin-bottom: 0.65rem;
     }
 
     .metric-note {
         font-size: 0.9rem !important;
-        color: #9ca3af;
+        color: #94A3B8;
         line-height: 1.45;
     }
 
     /* ========= Product Cards ========= */
     .product-card {
         background: #FFFFFF;
-        border: 1px solid #EEE5DC;
+        border: 1px solid #E5E7EB;
         border-radius: 16px;
         padding: 16px;
         min-height: 220px;
-        box-shadow: 0 1px 3px rgba(80, 50, 20, 0.025);
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
     }
 
     .product-name {
         font-size: 1.22rem !important;
         font-weight: 850;
-        color: #1f2937;
+        color: #111827;
         margin-bottom: 0.3rem;
         line-height: 1.2;
     }
 
     .product-sub {
         font-size: 0.9rem !important;
-        color: #6b7280;
+        color: #64748B;
         margin-bottom: 0.8rem;
         line-height: 1.45;
     }
@@ -256,14 +257,14 @@ st.markdown(
     .product-price {
         font-size: 1.9rem !important;
         font-weight: 900;
-        color: #1f2937;
+        color: #111827;
         margin-bottom: 0.8rem;
         line-height: 1.1;
     }
 
     .small-muted {
         font-size: 0.82rem !important;
-        color: #9ca3af;
+        color: #94A3B8;
         line-height: 1.45;
         margin-top: 0.6rem;
     }
@@ -283,19 +284,19 @@ st.markdown(
     .badge-green {
         background: #E6F4EA;
         color: #166534;
-        border-color: #cce8d4;
+        border-color: #CCE8D4;
     }
 
     .badge-red {
         background: #FCE7E7;
-        color: #9f1239;
-        border-color: #f3c5c5;
+        color: #9F1239;
+        border-color: #F3C5C5;
     }
 
     .badge-gray {
-        background: #F1EEE9;
-        color: #4B5563;
-        border-color: #DDD6CC;
+        background: #F1F5F9;
+        color: #334155;
+        border-color: #CBD5E1;
     }
 
     .badge-blue {
@@ -318,9 +319,9 @@ st.markdown(
 
     /* ========= Buttons ========= */
     .stButton > button {
-        background: #ffffff;
-        color: #1f2937;
-        border: 1px solid #D8CABB;
+        background: #FFFFFF;
+        color: #111827;
+        border: 1px solid #CBD5E1;
         border-radius: 10px;
         font-weight: 700;
         padding: 0.45rem 1rem;
@@ -334,7 +335,7 @@ st.markdown(
 
     /* ========= Tables ========= */
     [data-testid="stDataFrame"] {
-        border: 1px solid #EEE5DC;
+        border: 1px solid #E5E7EB;
         border-radius: 12px;
         overflow: hidden;
     }
@@ -343,7 +344,7 @@ st.markdown(
     button[data-baseweb="tab"] {
         font-size: 1rem !important;
         font-weight: 800 !important;
-        color: #4b5563 !important;
+        color: #4B5563 !important;
     }
 
     button[data-baseweb="tab"][aria-selected="true"] {
@@ -497,11 +498,11 @@ def make_detail_chart(history_df, product_label):
         paper_bgcolor="#FFFFFF",
         hovermode="x unified",
         showlegend=False,
-        font=dict(color="#4b5563"),
+        font=dict(color="#4B5563"),
     )
 
     fig.update_xaxes(showgrid=False)
-    fig.update_yaxes(gridcolor="#EEE5DC")
+    fig.update_yaxes(gridcolor="#E5E7EB")
 
     return fig
 
