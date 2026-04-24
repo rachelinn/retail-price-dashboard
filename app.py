@@ -26,7 +26,6 @@ SHEET_CSV_URL = (
 st.markdown(
     """
     <style>
-    /* ========= Global ========= */
     .stApp {
         background: #FFFDFB;
     }
@@ -46,7 +45,6 @@ st.markdown(
         font-size: 15px !important;
     }
 
-    /* ========= Sidebar ========= */
     section[data-testid="stSidebar"] {
         background: #F8FAFC;
         border-right: 1px solid #E5E7EB;
@@ -102,7 +100,6 @@ st.markdown(
         box-shadow: none !important;
     }
 
-    /* Selected tags in sidebar -> light gray, not red */
     section[data-testid="stSidebar"] span[data-baseweb="tag"] {
         background: #F1F5F9 !important;
         border: 1px solid #CBD5E1 !important;
@@ -120,11 +117,6 @@ st.markdown(
         color: #64748B !important;
     }
 
-    section[data-testid="stSidebar"] input {
-        color: #1f2937 !important;
-    }
-
-    /* ========= Section Containers ========= */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         border: 1px solid #E5E7EB !important;
         border-radius: 18px !important;
@@ -195,7 +187,6 @@ st.markdown(
         line-height: 1.45;
     }
 
-    /* ========= Metric Cards ========= */
     .metric-card {
         background: #FFFFFF;
         border: 1px solid #E5E7EB;
@@ -229,29 +220,35 @@ st.markdown(
         line-height: 1.45;
     }
 
-    /* ========= Product Cards ========= */
     .product-card {
         background: #FFFFFF;
         border: 1px solid #E5E7EB;
         border-radius: 16px;
         padding: 16px;
-        min-height: 220px;
+        min-height: 250px;
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
     }
 
     .product-name {
-        font-size: 1.22rem !important;
+        font-size: 1.14rem !important;
         font-weight: 850;
         color: #111827;
         margin-bottom: 0.3rem;
-        line-height: 1.2;
+        line-height: 1.25;
     }
 
     .product-sub {
-        font-size: 0.9rem !important;
+        font-size: 0.88rem !important;
         color: #64748B;
-        margin-bottom: 0.8rem;
+        margin-bottom: 0.55rem;
         line-height: 1.45;
+    }
+
+    .product-meta {
+        font-size: 0.82rem !important;
+        color: #94A3B8;
+        margin-bottom: 0.8rem;
+        line-height: 1.4;
     }
 
     .product-price {
@@ -269,7 +266,6 @@ st.markdown(
         margin-top: 0.6rem;
     }
 
-    /* ========= Badges ========= */
     .badge {
         display: inline-block;
         padding: 6px 10px;
@@ -305,7 +301,6 @@ st.markdown(
         border-color: #F6DDC6;
     }
 
-    /* ========= Soft Note ========= */
     .soft-note {
         background: #FFF7EF;
         border: 1px solid #F6DDC6;
@@ -317,7 +312,6 @@ st.markdown(
         margin-bottom: 1rem;
     }
 
-    /* ========= Buttons ========= */
     .stButton > button {
         background: #FFFFFF;
         color: #111827;
@@ -333,14 +327,12 @@ st.markdown(
         color: #9A6B45;
     }
 
-    /* ========= Tables ========= */
     [data-testid="stDataFrame"] {
         border: 1px solid #E5E7EB;
         border-radius: 12px;
         overflow: hidden;
     }
 
-    /* ========= Tabs ========= */
     button[data-baseweb="tab"] {
         font-size: 1rem !important;
         font-weight: 800 !important;
@@ -369,11 +361,14 @@ def load_data():
         "DATE",
         "BRAND",
         "PRODUCT NAME",
+        "VARIANT",
+        "SIZE",
         "RETAILER",
         "CATEGORY",
         "PRICE",
         "PRICE TYPE",
         "LOCATION STATUS",
+        "URL",
     ]
 
     for col in required_cols:
@@ -393,11 +388,27 @@ def load_data():
 
     df = df.dropna(subset=["DATE", "PRODUCT NAME", "RETAILER", "PRICE"])
 
-    for col in ["BRAND", "PRODUCT NAME", "RETAILER", "CATEGORY", "PRICE TYPE", "LOCATION STATUS"]:
+    for col in [
+        "BRAND",
+        "PRODUCT NAME",
+        "VARIANT",
+        "SIZE",
+        "RETAILER",
+        "CATEGORY",
+        "PRICE TYPE",
+        "LOCATION STATUS",
+        "URL",
+    ]:
         df[col] = df[col].fillna("").astype(str).str.strip()
 
+    # Important:
+    # Same product with different variant / size / retailer becomes a separate SKU.
     df["SKU KEY"] = (
         df["PRODUCT NAME"].astype(str)
+        + " | "
+        + df["VARIANT"].astype(str)
+        + " | "
+        + df["SIZE"].astype(str)
         + " | "
         + df["BRAND"].astype(str)
         + " | "
@@ -418,7 +429,7 @@ def get_latest_rows(df):
         df.sort_values("DATE")
         .groupby("SKU KEY", as_index=False)
         .tail(1)
-        .sort_values(["RETAILER", "BRAND", "PRODUCT NAME"])
+        .sort_values(["RETAILER", "BRAND", "PRODUCT NAME", "VARIANT", "SIZE"])
     )
 
 
@@ -472,6 +483,17 @@ def price_type_badge_html(price_type):
         return f'<span class="badge badge-gray">{pt}</span>'
     else:
         return f'<span class="badge badge-gray">{pt}</span>'
+
+
+def make_display_label(row):
+    parts = [
+        row.get("PRODUCT NAME", ""),
+        row.get("VARIANT", ""),
+        row.get("SIZE", ""),
+        row.get("BRAND", ""),
+        row.get("RETAILER", ""),
+    ]
+    return " | ".join([str(x) for x in parts if str(x).strip()])
 
 
 def make_detail_chart(history_df, product_label):
@@ -540,6 +562,8 @@ with st.sidebar:
     retailer_options = sorted(latest["RETAILER"].dropna().unique().tolist())
     brand_options = sorted(latest["BRAND"].dropna().unique().tolist())
     price_type_options = sorted(latest["PRICE TYPE"].dropna().unique().tolist())
+    size_options = sorted([x for x in latest["SIZE"].dropna().unique().tolist() if x])
+    variant_options = sorted([x for x in latest["VARIANT"].dropna().unique().tolist() if x])
 
     with st.container(border=True):
         st.markdown('<div class="filter-group-title">Category</div>', unsafe_allow_html=True)
@@ -585,6 +609,34 @@ with st.sidebar:
             key="filter_price_type"
         )
 
+    if size_options:
+        with st.container(border=True):
+            st.markdown('<div class="filter-group-title">Size</div>', unsafe_allow_html=True)
+            st.markdown('<div class="filter-group-note">Filter by package size</div>', unsafe_allow_html=True)
+            selected_sizes = st.multiselect(
+                "Size",
+                size_options,
+                default=size_options,
+                label_visibility="collapsed",
+                key="filter_size"
+            )
+    else:
+        selected_sizes = []
+
+    if variant_options:
+        with st.container(border=True):
+            st.markdown('<div class="filter-group-title">Variant</div>', unsafe_allow_html=True)
+            st.markdown('<div class="filter-group-note">Filter by scent / formula / claim</div>', unsafe_allow_html=True)
+            selected_variants = st.multiselect(
+                "Variant",
+                variant_options,
+                default=variant_options,
+                label_visibility="collapsed",
+                key="filter_variant"
+            )
+    else:
+        selected_variants = []
+
 # =========================
 # Apply filters
 # =========================
@@ -594,6 +646,12 @@ filtered_latest = latest[
     & latest["BRAND"].isin(selected_brands)
     & latest["PRICE TYPE"].isin(selected_price_types)
 ].copy()
+
+if size_options:
+    filtered_latest = filtered_latest[filtered_latest["SIZE"].isin(selected_sizes)]
+
+if variant_options:
+    filtered_latest = filtered_latest[filtered_latest["VARIANT"].isin(selected_variants)]
 
 filtered_keys = filtered_latest["SKU KEY"].unique().tolist()
 filtered_history = df[df["SKU KEY"].isin(filtered_keys)].copy()
@@ -708,6 +766,7 @@ with overview_tab:
                         <div class="product-card">
                             <div class="product-name">{row["PRODUCT NAME"]}</div>
                             <div class="product-sub">{row["BRAND"]} · {row["RETAILER"]} · {row["CATEGORY"]}</div>
+                            <div class="product-meta">{row["VARIANT"]} · {row["SIZE"]}</div>
                             <div class="product-price">{format_currency(row["PRICE"])}</div>
                             {variance_badge_html(row["VARIANCE $"], row["VARIANCE %"])}
                             <br>
@@ -736,6 +795,8 @@ with overview_tab:
             display_table = filtered_latest[
                 [
                     "PRODUCT NAME",
+                    "VARIANT",
+                    "SIZE",
                     "BRAND",
                     "RETAILER",
                     "CATEGORY",
@@ -763,7 +824,7 @@ with detail_tab:
         st.markdown('<div class="section-kicker">Deep Dive</div>', unsafe_allow_html=True)
         st.markdown('<div class="section-title">Product Detail Trend</div>', unsafe_allow_html=True)
         st.markdown(
-            '<div class="section-subtext">Select one product to inspect product-level price history and variance.</div>',
+            '<div class="section-subtext">Select one product to inspect product-level price history, size, variant, and source page.</div>',
             unsafe_allow_html=True
         )
 
@@ -772,13 +833,7 @@ with detail_tab:
             st.stop()
 
         selection_df = filtered_latest.copy()
-        selection_df["DISPLAY LABEL"] = (
-            selection_df["PRODUCT NAME"]
-            + " | "
-            + selection_df["BRAND"]
-            + " | "
-            + selection_df["RETAILER"]
-        )
+        selection_df["DISPLAY LABEL"] = selection_df.apply(make_display_label, axis=1)
 
         label_list = selection_df.sort_values("DISPLAY LABEL")["DISPLAY LABEL"].tolist()
 
@@ -814,19 +869,12 @@ with detail_tab:
         st.warning("No historical records found for the selected product under the current filters.")
     else:
         selected_latest = selected_history.tail(1).iloc[0]
-
-        product_label = (
-            selected_latest["PRODUCT NAME"]
-            + " | "
-            + selected_latest["BRAND"]
-            + " | "
-            + selected_latest["RETAILER"]
-        )
+        product_label = make_display_label(selected_latest)
 
         with st.container(border=True):
             st.markdown('<div class="subsection-title">Snapshot</div>', unsafe_allow_html=True)
             st.markdown(
-                '<div class="subsection-note">Current price, variance, and pricing-data quality for the selected product.</div>',
+                '<div class="subsection-note">Current price, variance, product attributes, data quality, and source page for the selected product.</div>',
                 unsafe_allow_html=True
             )
 
@@ -860,13 +908,24 @@ with detail_tab:
                 st.markdown(
                     f"""
                     <div class="metric-card">
-                        <div class="metric-label">Data Quality</div>
-                        <div style="margin-top:10px;">{price_type_badge_html(selected_latest["PRICE TYPE"])}</div>
+                        <div class="metric-label">Product + Data Quality</div>
+                        <div style="margin-top:8px;">
+                            <span class="badge badge-gray">{selected_latest["VARIANT"] or "No variant"}</span>
+                            <span class="badge badge-gray">{selected_latest["SIZE"] or "No size"}</span>
+                            {price_type_badge_html(selected_latest["PRICE TYPE"])}
+                        </div>
                         <div class="metric-note" style="margin-top:10px;">{selected_latest["LOCATION STATUS"]}</div>
                     </div>
                     """,
                     unsafe_allow_html=True
                 )
+
+            url = str(selected_latest.get("URL", "")).strip()
+
+            if url:
+                st.link_button("Open Retailer Page ↗", url)
+            else:
+                st.caption("No retailer URL available for this product.")
 
         with st.container(border=True):
             st.markdown('<div class="subsection-title">Historical Trend</div>', unsafe_allow_html=True)
@@ -897,6 +956,8 @@ with detail_tab:
                 [
                     "DATE",
                     "PRODUCT NAME",
+                    "VARIANT",
+                    "SIZE",
                     "BRAND",
                     "RETAILER",
                     "CATEGORY",
@@ -905,6 +966,7 @@ with detail_tab:
                     "VARIANCE %",
                     "PRICE TYPE",
                     "LOCATION STATUS",
+                    "URL",
                 ]
             ].copy()
 
