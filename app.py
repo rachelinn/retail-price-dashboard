@@ -230,7 +230,7 @@ st.markdown(
         border: 1px solid #E5E7EB;
         border-radius: 16px;
         padding: 16px;
-        min-height: 250px;
+        min-height: 205px;
         box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
     }
 
@@ -798,12 +798,9 @@ with overview_tab:
                         <div class="product-card">
                             <div class="product-name">{row["PRODUCT NAME"]}</div>
                             <div class="product-sub">{row["BRAND"]} · {row["RETAILER"]} · {row["CATEGORY"]}</div>
-                            <div class="product-meta">{row["VARIANT"]} · {row["SIZE"]}</div>
+                            <div class="product-meta">{row["SIZE"]}</div>
                             <div class="product-price">{format_currency(row["PRICE"])}</div>
                             {variance_badge_html(row["VARIANCE $"], row["VARIANCE %"])}
-                            <br>
-                            {price_type_badge_html(row["PRICE TYPE"])}
-                            <div class="small-muted">{row["LOCATION STATUS"]}</div>
                         </div>
                         """,
                         unsafe_allow_html=True
@@ -827,16 +824,14 @@ with overview_tab:
             display_table = filtered_latest[
                 [
                     "PRODUCT NAME",
-                    "VARIANT",
-                    "SIZE",
                     "BRAND",
                     "RETAILER",
                     "CATEGORY",
+                    "SIZE",
                     "PRICE",
                     "VARIANCE $",
                     "VARIANCE %",
                     "PRICE TYPE",
-                    "LOCATION STATUS",
                     "DATE",
                 ]
             ].copy()
