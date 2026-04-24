@@ -1,6 +1,9 @@
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+import requests
+from io import StringIO
+import time
 
 # =========================
 # Page config
@@ -14,10 +17,12 @@ st.set_page_config(
 # =========================
 # Google Sheet CSV URL
 # =========================
+SHEET_ID = "1tomybUYyC7rAa7O7VGpyrxdWOjYLnFmheFvKk04sSDc"
+SHEET_GID = "0"
+
 SHEET_CSV_URL = (
-    "https://docs.google.com/spreadsheets/d/"
-    "1tomybUYyC7rAa7O7VGpyrxdWOjYLnFmheFvKk04sSDc"
-    "/export?format=csv&gid=0"
+    f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq"
+    f"?tqx=out:csv&gid={SHEET_GID}"
 )
 
 # =========================
@@ -349,11 +354,40 @@ st.markdown(
 )
 
 # =========================
-# Data loading
+# Data loading with retry
 # =========================
 @st.cache_data(ttl=300)
 def load_data():
-    df = pd.read_csv(SHEET_CSV_URL)
+    last_error = None
+
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Cache-Control": "no-cache",
+    }
+
+    for attempt in range(1, 4):
+        try:
+            response = requests.get(
+                SHEET_CSV_URL,
+                headers=headers,
+                timeout=20
+            )
+
+            if response.status_code == 200 and response.text.strip():
+                df = pd.read_csv(StringIO(response.text))
+                break
+
+            last_error = f"Google Sheets returned HTTP {response.status_code}"
+            time.sleep(2)
+
+        except Exception as e:
+            last_error = str(e)
+            time.sleep(2)
+
+    else:
+        st.error("Could not load data from Google Sheets after 3 attempts.")
+        st.caption(f"Last error: {last_error}")
+        st.stop()
 
     df.columns = [c.strip().upper() for c in df.columns]
 
@@ -401,8 +435,6 @@ def load_data():
     ]:
         df[col] = df[col].fillna("").astype(str).str.strip()
 
-    # Important:
-    # Same product with different variant / size / retailer becomes a separate SKU.
     df["SKU KEY"] = (
         df["PRODUCT NAME"].astype(str)
         + " | "
