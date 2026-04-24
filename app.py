@@ -32,11 +32,11 @@ st.markdown(
         max-width: 1500px;
     }
 
-    .title {
+    .main-title {
         font-size: 34px;
         font-weight: 800;
         color: #0f172a;
-        margin-bottom: 0px;
+        margin-bottom: 2px;
     }
 
     .subtitle {
@@ -48,15 +48,33 @@ st.markdown(
     .disclaimer {
         font-size: 12px;
         color: #94a3b8;
-        margin-bottom: 24px;
+        margin-bottom: 8px;
+    }
+
+    .section-kicker {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 800;
+        color: #475569;
+        background: #f1f5f9;
+        border-radius: 999px;
+        padding: 5px 10px;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
     }
 
     .section-title {
-        font-size: 20px;
+        font-size: 22px;
         color: #0f172a;
         font-weight: 800;
-        margin-top: 26px;
-        margin-bottom: 12px;
+        margin-bottom: 4px;
+    }
+
+    .section-subtext {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 18px;
     }
 
     .metric-card {
@@ -95,7 +113,7 @@ st.markdown(
         border-radius: 16px;
         padding: 18px;
         box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-        min-height: 220px;
+        min-height: 245px;
     }
 
     .product-name {
@@ -154,6 +172,49 @@ st.markdown(
         color: #94a3b8;
         margin-top: 8px;
         line-height: 1.4;
+    }
+
+    .detail-title {
+        font-size: 19px;
+        color: #0f172a;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    .detail-subtitle {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 16px;
+    }
+
+    .soft-note {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1d4ed8;
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 13px;
+        margin-top: 12px;
+        margin-bottom: 14px;
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border-color: #e2e8f0 !important;
+        border-radius: 18px !important;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+        background: #ffffff;
+    }
+
+    .stButton > button {
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        color: #0f172a;
+        font-weight: 600;
+    }
+
+    .stButton > button:hover {
+        border-color: #2563eb;
+        color: #2563eb;
     }
 
     hr {
@@ -269,15 +330,21 @@ def format_currency(value):
 def format_variance_dollar(value):
     if pd.isna(value):
         return "New"
-    sign = "+" if value > 0 else ""
-    return f"{sign}${value:,.2f}"
+    if value > 0:
+        return f"+${value:,.2f}"
+    if value < 0:
+        return f"-${abs(value):,.2f}"
+    return "$0.00"
 
 
 def format_variance_percent(value):
     if pd.isna(value):
         return ""
-    sign = "+" if value > 0 else ""
-    return f"{sign}{value * 100:.1f}%"
+    if value > 0:
+        return f"+{value * 100:.1f}%"
+    if value < 0:
+        return f"-{abs(value) * 100:.1f}%"
+    return "0.0%"
 
 
 def variance_badge_html(var_dollar, var_pct):
@@ -354,21 +421,6 @@ if "selected_sku" not in st.session_state:
     st.session_state.selected_sku = None
 
 # =========================
-# Header
-# =========================
-st.markdown('<div class="title">Retail Pricing Intelligence</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Live dashboard connected to Google Sheets</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="disclaimer">Target reflects selected store pricing; Walmart currently reflects online pricing unless location is confirmed.</div>',
-    unsafe_allow_html=True
-)
-
-last_sync = df["DATE"].max()
-st.caption(f"Last updated from sheet: {last_sync.strftime('%Y-%m-%d %H:%M') if pd.notna(last_sync) else 'Unknown'}")
-
-st.markdown("<hr>", unsafe_allow_html=True)
-
-# =========================
 # Sidebar filters
 # =========================
 st.sidebar.header("Refine Data")
@@ -394,170 +446,201 @@ filtered_keys = filtered_latest["SKU KEY"].unique().tolist()
 filtered_history = df[df["SKU KEY"].isin(filtered_keys)].copy()
 
 # =========================
-# KPI Cards
+# KPI values
 # =========================
 tracked_skus = filtered_latest["SKU KEY"].nunique()
 avg_price = filtered_latest["PRICE"].mean()
-
 price_increases = filtered_latest[filtered_latest["VARIANCE $"] > 0]["SKU KEY"].nunique()
 price_decreases = filtered_latest[filtered_latest["VARIANCE $"] < 0]["SKU KEY"].nunique()
+last_sync = df["DATE"].max()
 
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
+# =========================
+# Section 1: Overview
+# =========================
+with st.container(border=True):
+    st.markdown('<div class="section-kicker">Overview</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-title">Retail Pricing Intelligence</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitle">Live dashboard connected to Google Sheets</div>', unsafe_allow_html=True)
     st.markdown(
-        f"""
-        <div class="metric-card">
-            <div class="metric-label">Tracked SKUs</div>
-            <div class="metric-value">{tracked_skus}</div>
-            <div class="metric-note">Active listings</div>
-        </div>
-        """,
+        '<div class="disclaimer">Target reflects selected store pricing; Walmart currently reflects online pricing unless location is confirmed.</div>',
         unsafe_allow_html=True
     )
 
-with col2:
-    st.markdown(
-        f"""
-        <div class="metric-card">
-            <div class="metric-label">Average Current Price</div>
-            <div class="metric-value">{format_currency(avg_price)}</div>
-            <div class="metric-note">Across current selection</div>
-        </div>
-        """,
-        unsafe_allow_html=True
+    st.caption(
+        f"Last updated from sheet: {last_sync.strftime('%Y-%m-%d %H:%M') if pd.notna(last_sync) else 'Unknown'}"
     )
 
-with col3:
-    st.markdown(
-        f"""
-        <div class="metric-card">
-            <div class="metric-label">Price Increases</div>
-            <div class="metric-value">{price_increases}</div>
-            <div class="metric-note">Vs previous pull</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown("")
 
-with col4:
-    st.markdown(
-        f"""
-        <div class="metric-card">
-            <div class="metric-label">Price Decreases</div>
-            <div class="metric-value">{price_decreases}</div>
-            <div class="metric-note">Vs previous pull</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    col1, col2, col3, col4 = st.columns(4)
 
-# =========================
-# Top Price Movers
-# =========================
-st.markdown('<div class="section-title">Top Price Movers</div>', unsafe_allow_html=True)
-
-movers = filtered_latest.copy()
-movers["ABS VARIANCE"] = movers["VARIANCE $"].abs()
-
-if movers["ABS VARIANCE"].notna().sum() == 0:
-    movers = filtered_latest.sort_values("DATE", ascending=False).head(4)
-else:
-    movers = movers.sort_values("ABS VARIANCE", ascending=False).head(4)
-
-if movers.empty:
-    st.info("No products available under the current filters.")
-else:
-    card_cols = st.columns(4)
-
-    for idx, (_, row) in enumerate(movers.iterrows()):
-        with card_cols[idx % 4]:
-            st.markdown(
-                f"""
-                <div class="product-card">
-                    <div class="product-name">{row["PRODUCT NAME"]}</div>
-                    <div class="product-sub">{row["BRAND"]} · {row["RETAILER"]} · {row["CATEGORY"]}</div>
-                    <div class="product-price">{format_currency(row["PRICE"])}</div>
-                    {variance_badge_html(row["VARIANCE $"], row["VARIANCE %"])}
-                    <br>
-                    {price_type_badge_html(row["PRICE TYPE"])}
-                    <div class="small-muted">{row["LOCATION STATUS"]}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-            if st.button("View Trend", key=f"trend_card_{row['SKU KEY']}"):
-                st.session_state.selected_sku = row["SKU KEY"]
-                st.rerun()
-
-# =========================
-# All Products Table
-# =========================
-st.markdown('<div class="section-title">All Tracked Products</div>', unsafe_allow_html=True)
-
-if filtered_latest.empty:
-    st.info("No products match the selected filters.")
-else:
-    selection_df = filtered_latest.copy()
-    selection_df["DISPLAY LABEL"] = (
-        selection_df["PRODUCT NAME"]
-        + " | "
-        + selection_df["BRAND"]
-        + " | "
-        + selection_df["RETAILER"]
-    )
-
-    left, right = st.columns([4, 1])
-
-    with left:
-        selected_label = st.selectbox(
-            "Select a product to inspect trend",
-            selection_df.sort_values("DISPLAY LABEL")["DISPLAY LABEL"].tolist(),
-            index=0
+    with col1:
+        st.markdown(
+            f"""
+            <div class="metric-card">
+                <div class="metric-label">Tracked SKUs</div>
+                <div class="metric-value">{tracked_skus}</div>
+                <div class="metric-note">Active listings</div>
+            </div>
+            """,
+            unsafe_allow_html=True
         )
 
-    with right:
-        st.write("")
-        st.write("")
-        if st.button("View Selected Trend"):
-            selected_key = selection_df.loc[
-                selection_df["DISPLAY LABEL"] == selected_label,
-                "SKU KEY"
-            ].iloc[0]
-            st.session_state.selected_sku = selected_key
-            st.rerun()
+    with col2:
+        st.markdown(
+            f"""
+            <div class="metric-card">
+                <div class="metric-label">Average Current Price</div>
+                <div class="metric-value">{format_currency(avg_price)}</div>
+                <div class="metric-note">Across current selection</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-    display_table = filtered_latest[
-        [
-            "PRODUCT NAME",
-            "BRAND",
-            "RETAILER",
-            "CATEGORY",
-            "PRICE",
-            "VARIANCE $",
-            "VARIANCE %",
-            "PRICE TYPE",
-            "LOCATION STATUS",
-            "DATE",
-        ]
-    ].copy()
+    with col3:
+        st.markdown(
+            f"""
+            <div class="metric-card">
+                <div class="metric-label">Price Increases</div>
+                <div class="metric-value">{price_increases}</div>
+                <div class="metric-note">Vs previous pull</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-    display_table["DATE"] = display_table["DATE"].dt.strftime("%Y-%m-%d %H:%M")
-    display_table["PRICE"] = display_table["PRICE"].map(format_currency)
-    display_table["VARIANCE $"] = display_table["VARIANCE $"].map(format_variance_dollar)
-    display_table["VARIANCE %"] = display_table["VARIANCE %"].map(format_variance_percent)
-
-    st.dataframe(display_table, use_container_width=True, hide_index=True)
+    with col4:
+        st.markdown(
+            f"""
+            <div class="metric-card">
+                <div class="metric-label">Price Decreases</div>
+                <div class="metric-value">{price_decreases}</div>
+                <div class="metric-note">Vs previous pull</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 # =========================
-# Hidden-by-default Product Detail Trend
+# Section 2: Top Price Movers
+# =========================
+with st.container(border=True):
+    st.markdown('<div class="section-kicker">Watchlist</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Top Price Movers</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-subtext">Products showing the largest price movement versus the previous pull. If no history is available, latest tracked products are shown as baselines.</div>',
+        unsafe_allow_html=True
+    )
+
+    movers = filtered_latest.copy()
+    movers["ABS VARIANCE"] = movers["VARIANCE $"].abs()
+
+    if movers["ABS VARIANCE"].notna().sum() == 0:
+        movers = filtered_latest.sort_values("DATE", ascending=False).head(4)
+    else:
+        movers = movers.sort_values("ABS VARIANCE", ascending=False).head(4)
+
+    if movers.empty:
+        st.info("No products available under the current filters.")
+    else:
+        card_cols = st.columns(4)
+
+        for idx, (_, row) in enumerate(movers.iterrows()):
+            with card_cols[idx % 4]:
+                st.markdown(
+                    f"""
+                    <div class="product-card">
+                        <div class="product-name">{row["PRODUCT NAME"]}</div>
+                        <div class="product-sub">{row["BRAND"]} · {row["RETAILER"]} · {row["CATEGORY"]}</div>
+                        <div class="product-price">{format_currency(row["PRICE"])}</div>
+                        {variance_badge_html(row["VARIANCE $"], row["VARIANCE %"])}
+                        <br>
+                        {price_type_badge_html(row["PRICE TYPE"])}
+                        <div class="small-muted">{row["LOCATION STATUS"]}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+                if st.button("View Trend", key=f"trend_card_{row['SKU KEY']}"):
+                    st.session_state.selected_sku = row["SKU KEY"]
+                    st.rerun()
+
+# =========================
+# Section 3: All Products
+# =========================
+with st.container(border=True):
+    st.markdown('<div class="section-kicker">Browse</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">All Tracked Products</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-subtext">Browse all currently tracked products. Select one product to inspect detailed price history below.</div>',
+        unsafe_allow_html=True
+    )
+
+    if filtered_latest.empty:
+        st.info("No products match the selected filters.")
+    else:
+        selection_df = filtered_latest.copy()
+        selection_df["DISPLAY LABEL"] = (
+            selection_df["PRODUCT NAME"]
+            + " | "
+            + selection_df["BRAND"]
+            + " | "
+            + selection_df["RETAILER"]
+        )
+
+        selector_col, button_col = st.columns([4, 1])
+
+        with selector_col:
+            selected_label = st.selectbox(
+                "Select a product to inspect trend",
+                selection_df.sort_values("DISPLAY LABEL")["DISPLAY LABEL"].tolist(),
+                index=0
+            )
+
+        with button_col:
+            st.write("")
+            st.write("")
+            if st.button("View Selected Trend"):
+                selected_key = selection_df.loc[
+                    selection_df["DISPLAY LABEL"] == selected_label,
+                    "SKU KEY"
+                ].iloc[0]
+                st.session_state.selected_sku = selected_key
+                st.rerun()
+
+        display_table = filtered_latest[
+            [
+                "PRODUCT NAME",
+                "BRAND",
+                "RETAILER",
+                "CATEGORY",
+                "PRICE",
+                "VARIANCE $",
+                "VARIANCE %",
+                "PRICE TYPE",
+                "LOCATION STATUS",
+                "DATE",
+            ]
+        ].copy()
+
+        display_table["DATE"] = display_table["DATE"].dt.strftime("%Y-%m-%d %H:%M")
+        display_table["PRICE"] = display_table["PRICE"].map(format_currency)
+        display_table["VARIANCE $"] = display_table["VARIANCE $"].map(format_variance_dollar)
+        display_table["VARIANCE %"] = display_table["VARIANCE %"].map(format_variance_percent)
+
+        st.dataframe(display_table, use_container_width=True, hide_index=True)
+
+# =========================
+# Section 4: Product Detail Trend
 # =========================
 if st.session_state.selected_sku:
     selected_sku = st.session_state.selected_sku
 
     if selected_sku not in filtered_history["SKU KEY"].unique():
-        st.warning("The selected product is no longer available under the current filters.")
+        with st.container(border=True):
+            st.warning("The selected product is no longer available under the current filters.")
     else:
         selected_history = filtered_history[
             filtered_history["SKU KEY"] == selected_sku
@@ -573,7 +656,16 @@ if st.session_state.selected_sku:
             + selected_latest["RETAILER"]
         )
 
-        with st.expander(f"Product Trend Detail: {product_label}", expanded=True):
+        with st.container(border=True):
+            st.markdown('<div class="section-kicker">Deep Dive</div>', unsafe_allow_html=True)
+            st.markdown('<div class="section-title">Product Trend Detail</div>', unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="section-subtext">{product_label}</div>',
+                unsafe_allow_html=True
+            )
+
+            st.markdown('<div class="detail-title">Product Snapshot</div>', unsafe_allow_html=True)
+
             detail_col1, detail_col2, detail_col3 = st.columns([1, 1, 2])
 
             with detail_col1:
@@ -613,14 +705,23 @@ if st.session_state.selected_sku:
                 )
 
             if selected_history.shape[0] < 2:
-                st.info("Baseline captured. Trend will become more meaningful after additional daily pulls.")
+                st.markdown(
+                    '<div class="soft-note">Baseline captured. Trend will become more meaningful after additional daily pulls.</div>',
+                    unsafe_allow_html=True
+                )
+
+            st.markdown('<div class="detail-title">Trend & History</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="detail-subtitle">Historical price movement for the selected product.</div>',
+                unsafe_allow_html=True
+            )
 
             st.plotly_chart(
                 make_detail_chart(selected_history, product_label),
                 use_container_width=True
             )
 
-            st.markdown("#### Historical Price Records")
+            st.markdown("##### Historical Price Records")
 
             history_table = selected_history[
                 [
