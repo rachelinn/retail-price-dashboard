@@ -29,6 +29,7 @@ st.markdown(
     .block-container {
         padding-top: 2rem;
         padding-bottom: 2rem;
+        max-width: 1500px;
     }
 
     .title {
@@ -94,7 +95,7 @@ st.markdown(
         border-radius: 16px;
         padding: 18px;
         box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-        min-height: 230px;
+        min-height: 220px;
     }
 
     .product-name {
@@ -153,15 +154,6 @@ st.markdown(
         color: #94a3b8;
         margin-top: 8px;
         line-height: 1.4;
-    }
-
-    .detail-box {
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 18px;
-        padding: 20px;
-        margin-top: 16px;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     }
 
     hr {
@@ -224,7 +216,7 @@ def load_data():
 
     df = df.sort_values(["SKU KEY", "DATE"])
 
-    # Variance calculation
+    # Variance $
     if "VARIANCE $" in df.columns:
         df["VARIANCE $"] = pd.to_numeric(
             df["VARIANCE $"]
@@ -240,6 +232,7 @@ def load_data():
         df["PREVIOUS PRICE"] = df.groupby("SKU KEY")["PRICE"].shift(1)
         df["VARIANCE $"] = df["PRICE"] - df["PREVIOUS PRICE"]
 
+    # Variance %
     if "VARIANCE %" in df.columns:
         df["VARIANCE %"] = (
             df["VARIANCE %"]
@@ -364,10 +357,7 @@ if "selected_sku" not in st.session_state:
 # Header
 # =========================
 st.markdown('<div class="title">Retail Pricing Intelligence</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="subtitle">Live dashboard connected to Google Sheets</div>',
-    unsafe_allow_html=True
-)
+st.markdown('<div class="subtitle">Live dashboard connected to Google Sheets</div>', unsafe_allow_html=True)
 st.markdown(
     '<div class="disclaimer">Target reflects selected store pricing; Walmart currently reflects online pricing unless location is confirmed.</div>',
     unsafe_allow_html=True
@@ -499,6 +489,7 @@ else:
 
             if st.button("View Trend", key=f"trend_card_{row['SKU KEY']}"):
                 st.session_state.selected_sku = row["SKU KEY"]
+                st.rerun()
 
 # =========================
 # All Products Table
@@ -535,6 +526,7 @@ else:
                 "SKU KEY"
             ].iloc[0]
             st.session_state.selected_sku = selected_key
+            st.rerun()
 
     display_table = filtered_latest[
         [
@@ -559,7 +551,7 @@ else:
     st.dataframe(display_table, use_container_width=True, hide_index=True)
 
 # =========================
-# Product Detail Trend
+# Hidden-by-default Product Detail Trend
 # =========================
 if st.session_state.selected_sku:
     selected_sku = st.session_state.selected_sku
@@ -573,50 +565,6 @@ if st.session_state.selected_sku:
 
         selected_latest = selected_history.tail(1).iloc[0]
 
-        st.markdown("<hr>", unsafe_allow_html=True)
-        st.markdown(
-            f'<div class="section-title">Product Trend Detail: {selected_latest["PRODUCT NAME"]}</div>',
-            unsafe_allow_html=True
-        )
-
-        detail_col1, detail_col2, detail_col3 = st.columns([1, 1, 2])
-
-        with detail_col1:
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <div class="metric-label">Current Price</div>
-                    <div class="metric-value">{format_currency(selected_latest["PRICE"])}</div>
-                    <div class="metric-note">{selected_latest["BRAND"]} · {selected_latest["RETAILER"]}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with detail_col2:
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <div class="metric-label">Variance</div>
-                    <div class="metric-value">{format_variance_dollar(selected_latest["VARIANCE $"])}</div>
-                    <div class="metric-note">{format_variance_percent(selected_latest["VARIANCE %"]) or "New baseline"}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with detail_col3:
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <div class="metric-label">Data Quality</div>
-                    <div style="margin-top:10px;">{price_type_badge_html(selected_latest["PRICE TYPE"])}</div>
-                    <div class="metric-note" style="margin-top:10px;">{selected_latest["LOCATION STATUS"]}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
         product_label = (
             selected_latest["PRODUCT NAME"]
             + " | "
@@ -625,40 +573,79 @@ if st.session_state.selected_sku:
             + selected_latest["RETAILER"]
         )
 
-        if selected_history.shape[0] < 2:
-            st.info("Baseline captured. Trend will become more meaningful after additional daily pulls.")
+        with st.expander(f"Product Trend Detail: {product_label}", expanded=True):
+            detail_col1, detail_col2, detail_col3 = st.columns([1, 1, 2])
 
-        st.plotly_chart(
-            make_detail_chart(selected_history, product_label),
-            use_container_width=True
-        )
+            with detail_col1:
+                st.markdown(
+                    f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Current Price</div>
+                        <div class="metric-value">{format_currency(selected_latest["PRICE"])}</div>
+                        <div class="metric-note">{selected_latest["BRAND"]} · {selected_latest["RETAILER"]}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
-        st.markdown("#### Historical Price Records")
+            with detail_col2:
+                st.markdown(
+                    f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Variance</div>
+                        <div class="metric-value">{format_variance_dollar(selected_latest["VARIANCE $"])}</div>
+                        <div class="metric-note">{format_variance_percent(selected_latest["VARIANCE %"]) or "New baseline"}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
-        history_table = selected_history[
-            [
-                "DATE",
-                "PRODUCT NAME",
-                "BRAND",
-                "RETAILER",
-                "CATEGORY",
-                "PRICE",
-                "VARIANCE $",
-                "VARIANCE %",
-                "PRICE TYPE",
-                "LOCATION STATUS",
-            ]
-        ].copy()
+            with detail_col3:
+                st.markdown(
+                    f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Data Quality</div>
+                        <div style="margin-top:10px;">{price_type_badge_html(selected_latest["PRICE TYPE"])}</div>
+                        <div class="metric-note" style="margin-top:10px;">{selected_latest["LOCATION STATUS"]}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
-        history_table["DATE"] = history_table["DATE"].dt.strftime("%Y-%m-%d %H:%M")
-        history_table["PRICE"] = history_table["PRICE"].map(format_currency)
-        history_table["VARIANCE $"] = history_table["VARIANCE $"].map(format_variance_dollar)
-        history_table["VARIANCE %"] = history_table["VARIANCE %"].map(format_variance_percent)
+            if selected_history.shape[0] < 2:
+                st.info("Baseline captured. Trend will become more meaningful after additional daily pulls.")
 
-        st.dataframe(history_table, use_container_width=True, hide_index=True)
+            st.plotly_chart(
+                make_detail_chart(selected_history, product_label),
+                use_container_width=True
+            )
 
-        if st.button("Hide Trend Detail"):
-            st.session_state.selected_sku = None
-            st.rerun()
+            st.markdown("#### Historical Price Records")
+
+            history_table = selected_history[
+                [
+                    "DATE",
+                    "PRODUCT NAME",
+                    "BRAND",
+                    "RETAILER",
+                    "CATEGORY",
+                    "PRICE",
+                    "VARIANCE $",
+                    "VARIANCE %",
+                    "PRICE TYPE",
+                    "LOCATION STATUS",
+                ]
+            ].copy()
+
+            history_table["DATE"] = history_table["DATE"].dt.strftime("%Y-%m-%d %H:%M")
+            history_table["PRICE"] = history_table["PRICE"].map(format_currency)
+            history_table["VARIANCE $"] = history_table["VARIANCE $"].map(format_variance_dollar)
+            history_table["VARIANCE %"] = history_table["VARIANCE %"].map(format_variance_percent)
+
+            st.dataframe(history_table, use_container_width=True, hide_index=True)
+
+            if st.button("Hide Trend Detail"):
+                st.session_state.selected_sku = None
+                st.rerun()
 else:
     st.caption("Select a product and click View Trend to inspect product-level price history.")
