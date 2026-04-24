@@ -27,6 +27,10 @@ st.markdown(
     """
     <style>
     /* ========= Global ========= */
+    .stApp {
+        background: #FEFBF7;
+    }
+
     .block-container {
         padding-top: 1.8rem;
         padding-bottom: 2rem;
@@ -35,7 +39,7 @@ st.markdown(
 
     html, body, [class*="css"] {
         font-family: "Inter", "Segoe UI", sans-serif;
-        color: #0f172a;
+        color: #1f2937;
     }
 
     p, li, div, span, label {
@@ -44,8 +48,8 @@ st.markdown(
 
     /* ========= Sidebar ========= */
     section[data-testid="stSidebar"] {
-        background: #f5f7fb;
-        border-right: 1px solid #d9e2ec;
+        background: #FAF6F1;
+        border-right: 1px solid #EEE5DC;
     }
 
     section[data-testid="stSidebar"] .block-container {
@@ -57,13 +61,13 @@ st.markdown(
     .sidebar-title {
         font-size: 1.45rem !important;
         font-weight: 850;
-        color: #0f172a;
+        color: #1f2937;
         margin-bottom: 0.25rem;
     }
 
     .sidebar-subtext {
         font-size: 0.92rem !important;
-        color: #64748b;
+        color: #6b7280;
         margin-bottom: 1rem;
         line-height: 1.4;
     }
@@ -71,7 +75,7 @@ st.markdown(
     .filter-group-title {
         font-size: 0.78rem !important;
         font-weight: 850;
-        color: #1e293b;
+        color: #3f3328;
         text-transform: uppercase;
         letter-spacing: 0.08em;
         margin-bottom: 0.2rem;
@@ -79,30 +83,35 @@ st.markdown(
 
     .filter-group-note {
         font-size: 0.82rem !important;
-        color: #94a3b8;
+        color: #9ca3af;
         margin-bottom: 0.65rem;
     }
 
-    /* Sidebar multiselect container */
+    section[data-testid="stSidebar"] div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: #FFFFFF !important;
+        border: 1px solid #EEE5DC !important;
+        border-radius: 14px !important;
+        box-shadow: 0 1px 3px rgba(80, 50, 20, 0.025);
+    }
+
     section[data-testid="stSidebar"] [data-baseweb="select"] > div {
         background: #ffffff !important;
-        border: 1px solid #d8e0ea !important;
+        border: 1px solid #DDD6CC !important;
         border-radius: 10px !important;
         min-height: 44px !important;
         box-shadow: none !important;
     }
 
-    /* Selected tags in sidebar -> light gray instead of red */
     section[data-testid="stSidebar"] span[data-baseweb="tag"] {
-        background: #eef2f7 !important;
-        border: 1px solid #d8e0ea !important;
+        background: #F1EEE9 !important;
+        border: 1px solid #DDD6CC !important;
         border-radius: 8px !important;
-        color: #334155 !important;
+        color: #4B5563 !important;
         font-weight: 650 !important;
     }
 
     section[data-testid="stSidebar"] span[data-baseweb="tag"] span {
-        color: #334155 !important;
+        color: #4B5563 !important;
     }
 
     section[data-testid="stSidebar"] span[data-baseweb="tag"] svg {
@@ -111,15 +120,15 @@ st.markdown(
     }
 
     section[data-testid="stSidebar"] input {
-        color: #0f172a !important;
+        color: #1f2937 !important;
     }
 
     /* ========= Section Containers ========= */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 1px solid #d9e2ec !important;
+        border: 1px solid #EEE5DC !important;
         border-radius: 18px !important;
-        background: #ffffff !important;
-        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        background: #FFFFFF !important;
+        box-shadow: 0 2px 8px rgba(80, 50, 20, 0.025);
     }
 
     .section-kicker {
@@ -129,9 +138,9 @@ st.markdown(
         font-weight: 850;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        color: #334155;
-        background: #eef4ff;
-        border: 1px solid #dbe7ff;
+        color: #9A6B45;
+        background: #FFF1E4;
+        border: 1px solid #F6DDC6;
         border-radius: 999px;
         margin-bottom: 0.9rem;
     }
@@ -140,33 +149,33 @@ st.markdown(
         font-size: 2.45rem !important;
         font-weight: 900;
         line-height: 1.1;
-        color: #0b1f44;
+        color: #1f2937;
         margin-bottom: 0.45rem;
     }
 
     .subtitle {
         font-size: 1.02rem !important;
-        font-weight: 600;
-        color: #334155;
+        font-weight: 650;
+        color: #374151;
         margin-bottom: 0.25rem;
     }
 
     .disclaimer {
         font-size: 0.92rem !important;
-        color: #64748b;
+        color: #6b7280;
         margin-bottom: 0.4rem;
     }
 
     .section-title {
         font-size: 1.75rem !important;
         font-weight: 850;
-        color: #0f172a;
+        color: #1f2937;
         margin-bottom: 0.35rem;
     }
 
     .section-subtext {
         font-size: 0.96rem !important;
-        color: #64748b;
+        color: #6b7280;
         margin-bottom: 1rem;
         line-height: 1.5;
     }
@@ -174,26 +183,26 @@ st.markdown(
     .subsection-title {
         font-size: 1.22rem !important;
         font-weight: 850;
-        color: #0f172a;
+        color: #1f2937;
         margin-bottom: 0.25rem;
     }
 
     .subsection-note {
         font-size: 0.92rem !important;
-        color: #64748b;
+        color: #6b7280;
         margin-bottom: 0.9rem;
         line-height: 1.45;
     }
 
     /* ========= Metric Cards ========= */
     .metric-card {
-        background: #ffffff;
-        border: 1px solid #d9e2ec;
-        border-top: 4px solid #dbeafe;
+        background: #FFFFFF;
+        border: 1px solid #EEE5DC;
+        border-top: 4px solid #F1C9A5;
         border-radius: 16px;
         padding: 18px 18px 16px 18px;
         min-height: 138px;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+        box-shadow: 0 1px 3px rgba(80, 50, 20, 0.025);
     }
 
     .metric-label {
@@ -201,45 +210,45 @@ st.markdown(
         font-weight: 850;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #64748b;
+        color: #7c6a58;
         margin-bottom: 0.9rem;
     }
 
     .metric-value {
         font-size: 2.25rem !important;
         font-weight: 900;
-        color: #0b1f44;
+        color: #1f2937;
         line-height: 1.1;
         margin-bottom: 0.65rem;
     }
 
     .metric-note {
         font-size: 0.9rem !important;
-        color: #94a3b8;
+        color: #9ca3af;
         line-height: 1.45;
     }
 
     /* ========= Product Cards ========= */
     .product-card {
-        background: #ffffff;
-        border: 1px solid #d9e2ec;
+        background: #FFFFFF;
+        border: 1px solid #EEE5DC;
         border-radius: 16px;
         padding: 16px;
         min-height: 220px;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+        box-shadow: 0 1px 3px rgba(80, 50, 20, 0.025);
     }
 
     .product-name {
         font-size: 1.22rem !important;
         font-weight: 850;
-        color: #0f172a;
+        color: #1f2937;
         margin-bottom: 0.3rem;
         line-height: 1.2;
     }
 
     .product-sub {
         font-size: 0.9rem !important;
-        color: #64748b;
+        color: #6b7280;
         margin-bottom: 0.8rem;
         line-height: 1.45;
     }
@@ -247,14 +256,14 @@ st.markdown(
     .product-price {
         font-size: 1.9rem !important;
         font-weight: 900;
-        color: #0b1f44;
+        color: #1f2937;
         margin-bottom: 0.8rem;
         line-height: 1.1;
     }
 
     .small-muted {
         font-size: 0.82rem !important;
-        color: #94a3b8;
+        color: #9ca3af;
         line-height: 1.45;
         margin-top: 0.6rem;
     }
@@ -272,34 +281,34 @@ st.markdown(
     }
 
     .badge-green {
-        background: #dcfce7;
+        background: #E6F4EA;
         color: #166534;
-        border-color: #bbf7d0;
+        border-color: #cce8d4;
     }
 
     .badge-red {
-        background: #fee2e2;
-        color: #b91c1c;
-        border-color: #fecaca;
+        background: #FCE7E7;
+        color: #9f1239;
+        border-color: #f3c5c5;
     }
 
     .badge-gray {
-        background: #f1f5f9;
-        color: #334155;
-        border-color: #dbe2ea;
+        background: #F1EEE9;
+        color: #4B5563;
+        border-color: #DDD6CC;
     }
 
     .badge-blue {
-        background: #eef4ff;
-        color: #1d4ed8;
-        border-color: #dbeafe;
+        background: #FFF1E4;
+        color: #9A6B45;
+        border-color: #F6DDC6;
     }
 
     /* ========= Soft Note ========= */
     .soft-note {
-        background: #eff6ff;
-        border: 1px solid #bfdbfe;
-        color: #1d4ed8;
+        background: #FFF7EF;
+        border: 1px solid #F6DDC6;
+        color: #9A6B45;
         border-radius: 12px;
         padding: 12px 14px;
         font-size: 0.94rem !important;
@@ -310,22 +319,22 @@ st.markdown(
     /* ========= Buttons ========= */
     .stButton > button {
         background: #ffffff;
-        color: #0f172a;
-        border: 1px solid #cbd5e1;
+        color: #1f2937;
+        border: 1px solid #D8CABB;
         border-radius: 10px;
         font-weight: 700;
         padding: 0.45rem 1rem;
     }
 
     .stButton > button:hover {
-        border-color: #94a3b8;
-        background: #f8fafc;
-        color: #0f172a;
+        border-color: #D5A77F;
+        background: #FFF7EF;
+        color: #9A6B45;
     }
 
     /* ========= Tables ========= */
     [data-testid="stDataFrame"] {
-        border: 1px solid #d9e2ec;
+        border: 1px solid #EEE5DC;
         border-radius: 12px;
         overflow: hidden;
     }
@@ -334,6 +343,12 @@ st.markdown(
     button[data-baseweb="tab"] {
         font-size: 1rem !important;
         font-weight: 800 !important;
+        color: #4b5563 !important;
+    }
+
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #9A6B45 !important;
+        border-bottom-color: #F1C9A5 !important;
     }
     </style>
     """,
@@ -466,8 +481,8 @@ def make_detail_chart(history_df, product_label):
             x=history_df["DATE"],
             y=history_df["PRICE"],
             mode="lines+markers",
-            line=dict(width=3),
-            marker=dict(size=8),
+            line=dict(width=3, color="#D5A77F"),
+            marker=dict(size=8, color="#D5A77F"),
             hovertemplate="%{x|%b %d, %Y %I:%M %p}<br>$%{y:.2f}<extra></extra>",
             name=product_label,
         )
@@ -478,14 +493,15 @@ def make_detail_chart(history_df, product_label):
         margin=dict(l=20, r=20, t=20, b=20),
         xaxis_title="Date",
         yaxis_title="Price",
-        plot_bgcolor="white",
-        paper_bgcolor="white",
+        plot_bgcolor="#FFFFFF",
+        paper_bgcolor="#FFFFFF",
         hovermode="x unified",
         showlegend=False,
+        font=dict(color="#4b5563"),
     )
 
     fig.update_xaxes(showgrid=False)
-    fig.update_yaxes(gridcolor="#e5e7eb")
+    fig.update_yaxes(gridcolor="#EEE5DC")
 
     return fig
 
